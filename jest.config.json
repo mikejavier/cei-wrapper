@@ -1,0 +1,30 @@
+{
+  "rootDir": "./",
+  "clearMocks": true,
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "testMatch": [
+    "<rootDir>/tests/**/*.spec.ts"
+  ],
+  "testPathIgnorePatterns": [
+    "node_modules",
+    "dist",
+    "scripts"
+  ],
+  "silent": false,
+  "collectCoverage": true,
+  "coverageDirectory": "reports/coverage",
+  "collectCoverageFrom": [
+    "src/**/*.ts"
+  ],
+  "coverageReporters": [
+    [
+      "text",
+      {
+        "skipFull": true
+      }
+    ],
+    "text-summary",
+    "lcov"
+  ]
+}
