@@ -24,6 +24,7 @@
   "author": "Michael Santillán",
   "license": "MIT",
   "devDependencies": {
+    "@types/faker": "^5.5.8",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.9.1",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
@@ -33,9 +34,13 @@
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-spellcheck": "0.0.19",
+    "faker": "^5.5.3",
     "jest": "^27.1.1",
     "prettier": "^2.4.0",
     "ts-jest": "^27.0.5",
     "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "@vizir/simple-json-logger": "^3.0.0"
   }
 }
