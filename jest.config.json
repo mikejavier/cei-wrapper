@@ -26,5 +26,6 @@
     ],
     "text-summary",
     "lcov"
-  ]
+  ],
+  "setupFiles": ["./tests/jest-setup-file.ts"]
 }
