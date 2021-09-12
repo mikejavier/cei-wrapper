@@ -4,6 +4,7 @@ import { inject, injectable } from "inversify";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
+import { Settings } from "../../infrastructure/configurations/settings";
 import { HttpRequestResponse } from "../http/http-request-response";
 import { HttpService } from "../http/http-service";
 import { LoggerService } from "../logger/logger-service";
@@ -18,13 +19,16 @@ interface IAuthentication {
 export class CeiService {
   private readonly loggerService: LoggerService;
   private readonly httpService: HttpService;
+  private readonly settings: Settings;
 
   public constructor(
     @inject(HttpService) httpService: HttpService,
     @inject(LoggerService) loggerService: LoggerService,
+    @inject(Settings) settings: Settings,
   ) {
     this.loggerService = loggerService;
     this.httpService = httpService;
+    this.settings = settings;
   }
 
   public async getConsolidatedValues(authentication: IAuthentication): Promise<Result<ConsolidatedValues>> {
@@ -63,7 +67,7 @@ export class CeiService {
 
   private makeRequest<T>(endpoint: string, authentication: IAuthentication): Promise<Result<HttpRequestResponse<T>>> {
     return this.httpService.request<T>({
-      url: `${process.env.CEI_API_URL}/${endpoint}`,
+      url: `${this.settings.ceiApiUrl}/${endpoint}`,
       method: "GET",
       headers: {
         Authorization: `Bearer ${authentication.token}`,
