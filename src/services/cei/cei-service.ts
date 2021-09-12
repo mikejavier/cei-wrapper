@@ -1,6 +1,7 @@
 import { plainToClass } from "class-transformer";
 import { validateSync } from "class-validator";
 import { inject, injectable } from "inversify";
+import { AuthenticationContext } from "../../application/contracts/authentication-context/authentication-context";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
@@ -9,11 +10,6 @@ import { HttpRequestResponse } from "../http/http-request-response";
 import { HttpService } from "../http/http-service";
 import { LoggerService } from "../logger/logger-service";
 import { ConsolidatedValues } from "./entities/consolidated-value";
-
-interface IAuthentication {
-  cacheId: string;
-  token: string;
-}
 
 @injectable()
 export class CeiService {
@@ -31,7 +27,9 @@ export class CeiService {
     this.settings = settings;
   }
 
-  public async getConsolidatedValues(authentication: IAuthentication): Promise<Result<ConsolidatedValues>> {
+  public async getConsolidatedValues(
+    authenticationContext: AuthenticationContext,
+  ): Promise<Result<ConsolidatedValues>> {
     interface IConsolidatedValuesResponse {
       total: number;
       subTotais: {
@@ -43,7 +41,7 @@ export class CeiService {
 
     const response = await this.makeRequest<IConsolidatedValuesResponse>(
       "/investidor/v1/posicao/total-acumulado",
-      authentication,
+      authenticationContext,
     );
 
     if (response.isError) {
@@ -65,15 +63,18 @@ export class CeiService {
     return new ResultSuccess(consolidatedValues);
   }
 
-  private makeRequest<T>(endpoint: string, authentication: IAuthentication): Promise<Result<HttpRequestResponse<T>>> {
+  private makeRequest<T>(
+    endpoint: string,
+    authenticationContext: AuthenticationContext,
+  ): Promise<Result<HttpRequestResponse<T>>> {
     return this.httpService.request<T>({
       url: `${this.settings.ceiApiUrl}/${endpoint}`,
       method: "GET",
       headers: {
-        Authorization: `Bearer ${authentication.token}`,
+        Authorization: `Bearer ${authenticationContext.token}`,
       },
       params: {
-        "cache-guid": authentication.cacheId,
+        "cache-guid": authenticationContext.cacheId,
       },
     });
   }

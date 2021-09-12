@@ -1,3 +1,4 @@
+import { AuthenticationContext } from "./application/contracts/authentication-context/authentication-context";
 import { Result } from "./application/contracts/result/result";
 import { createContainer } from "./infrastructure/configurations/container";
 import { ISettings } from "./infrastructure/configurations/settings";
@@ -12,6 +13,8 @@ export class CeiWrapper {
   }
 
   public async getConsolidatedValues(): Promise<Result<ConsolidatedValues>> {
-    return await this.ceiService.getConsolidatedValues({ cacheId: "", token: "" });
+    const authenticationContext = new AuthenticationContext("", "");
+
+    return await this.ceiService.getConsolidatedValues(authenticationContext);
   }
 }

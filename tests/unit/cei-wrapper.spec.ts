@@ -6,13 +6,13 @@ import { ConsolidatedValues } from "../../src/services/cei/entities/consolidated
 let getConsolidatedValuesMock: jest.Mock;
 
 jest.mock("../../src/infrastructure/configurations/container", () => ({
-  container: {
+  createContainer: () => ({
     get: function () {
       return {
         getConsolidatedValues: getConsolidatedValuesMock,
       };
     },
-  },
+  }),
 }));
 
 describe("CeiWrapper", () => {
