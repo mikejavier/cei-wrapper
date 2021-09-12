@@ -22,7 +22,7 @@ const generateExpectedRequestParameters = (cacheId: string, token: string) => ({
   headers: { Authorization: `Bearer ${token}` },
   method: "GET",
   params: { "cache-guid": cacheId },
-  url: `${ceiApiUrl}//investidor/v1/posicao/total-acumulado`,
+  url: `${ceiApiUrl}/investidor/v1/posicao/total-acumulado`,
 });
 
 describe("CeiService", () => {

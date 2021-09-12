@@ -68,7 +68,7 @@ export class CeiService {
     authenticationContext: AuthenticationContext,
   ): Promise<Result<HttpRequestResponse<T>>> {
     return this.httpService.request<T>({
-      url: `${this.settings.ceiApiUrl}/${endpoint}`,
+      url: this.settings.ceiApiUrl + endpoint,
       method: "GET",
       headers: {
         Authorization: `Bearer ${authenticationContext.token}`,
