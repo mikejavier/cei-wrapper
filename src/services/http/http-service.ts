@@ -1,4 +1,5 @@
 import Axios, { AxiosRequestConfig } from "axios";
+import { inject, injectable } from "inversify";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
@@ -7,15 +8,16 @@ import { HttpRequestOptions } from "./http-request-options";
 import { HttpRequestResponse } from "./http-request-response";
 import { HttpRequestStatus } from "./http-request-status";
 
+@injectable()
 export class HttpService {
-  private readonly logger: LoggerService;
+  private readonly loggerService: LoggerService;
 
-  public constructor(logger: LoggerService) {
-    this.logger = logger;
+  public constructor(@inject(LoggerService) loggerService: LoggerService) {
+    this.loggerService = loggerService;
   }
 
   public async request<T>(options: HttpRequestOptions): Promise<Result<HttpRequestResponse<T>>> {
-    this.logger.info("Executing http request", { options });
+    this.loggerService.info("Executing http request", { options });
 
     const request: AxiosRequestConfig = {
       data: options.body,
@@ -42,7 +44,7 @@ export class HttpService {
         statusCode: response.status,
       };
 
-      this.logger.info("Http request successfully parsed result", {
+      this.loggerService.info("Http request successfully parsed result", {
         data: response.data,
         headers: response.headers,
         options,
@@ -51,7 +53,7 @@ export class HttpService {
 
       return new ResultSuccess(new HttpRequestResponse<T>(result));
     } catch (error) {
-      this.logger.error("The http request result in a status code 4xx or 5xx", {
+      this.loggerService.error("The http request result in a status code 4xx or 5xx", {
         options,
         error: error instanceof Error ? error.message : error,
       });

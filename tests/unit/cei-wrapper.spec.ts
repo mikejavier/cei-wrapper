@@ -1,21 +1,28 @@
 import { plainToClass } from "class-transformer";
 import { ResultSuccess } from "../../src/application/contracts/result/result-success";
 import { CeiWrapper } from "../../src/cei-wrapper";
-import { CeiService } from "../../src/services/cei/cei-service";
 import { ConsolidatedValues } from "../../src/services/cei/entities/consolidated-value";
 
-const generateCeiWrapperInstance = (getConsolidatedValuesMock: jest.Mock) => {
-  const ceiServiceMock = { getConsolidatedValues: getConsolidatedValuesMock } as unknown as CeiService;
+let getConsolidatedValuesMock: jest.Mock;
 
-  return new CeiWrapper(ceiServiceMock);
-};
+jest.mock("../../src/infrastructure/configurations/container", () => ({
+  container: {
+    get: function () {
+      return {
+        getConsolidatedValues: getConsolidatedValuesMock,
+      };
+    },
+  },
+}));
 
 describe("CeiWrapper", () => {
   describe("getConsolidatedValues()", () => {
     it("Should return result success with the consolidated values", async () => {
       const resultMock = plainToClass(ConsolidatedValues, {});
-      const getConsolidatedValuesMock = jest.fn().mockResolvedValue(new ResultSuccess(resultMock));
-      const ceiWrapper = generateCeiWrapperInstance(getConsolidatedValuesMock);
+
+      getConsolidatedValuesMock = jest.fn().mockResolvedValue(new ResultSuccess(resultMock));
+
+      const ceiWrapper = new CeiWrapper();
 
       const expectedResult = new ResultSuccess(resultMock);
 

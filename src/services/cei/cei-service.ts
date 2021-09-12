@@ -1,5 +1,6 @@
 import { plainToClass } from "class-transformer";
 import { validateSync } from "class-validator";
+import { inject, injectable } from "inversify";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
@@ -13,13 +14,17 @@ interface IAuthentication {
   token: string;
 }
 
+@injectable()
 export class CeiService {
-  private readonly logger: LoggerService;
-  private readonly http: HttpService;
+  private readonly loggerService: LoggerService;
+  private readonly httpService: HttpService;
 
-  public constructor(http: HttpService, logger: LoggerService) {
-    this.logger = logger;
-    this.http = http;
+  public constructor(
+    @inject(HttpService) httpService: HttpService,
+    @inject(LoggerService) loggerService: LoggerService,
+  ) {
+    this.loggerService = loggerService;
+    this.httpService = httpService;
   }
 
   public async getConsolidatedValues(authentication: IAuthentication): Promise<Result<ConsolidatedValues>> {
@@ -38,7 +43,7 @@ export class CeiService {
     );
 
     if (response.isError) {
-      this.logger.error("Fail to fetch consolidated values", { response });
+      this.loggerService.error("Fail to fetch consolidated values", { response });
 
       return new ResultError("Fail to fetch consolidated values");
     }
@@ -48,7 +53,7 @@ export class CeiService {
     const errors = validateSync(consolidatedValues);
 
     if (errors.length > 0) {
-      this.logger.error("Received an invalid data", { response });
+      this.loggerService.error("Received an invalid data", { response });
 
       return new ResultError("Received an invalid data");
     }
@@ -57,7 +62,7 @@ export class CeiService {
   }
 
   private makeRequest<T>(endpoint: string, authentication: IAuthentication): Promise<Result<HttpRequestResponse<T>>> {
-    return this.http.request<T>({
+    return this.httpService.request<T>({
       url: `${process.env.CEI_API_URL}/${endpoint}`,
       method: "GET",
       headers: {

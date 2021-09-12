@@ -1,5 +1,7 @@
 import { Logger } from "@vizir/simple-json-logger";
+import { injectable } from "inversify";
 
+@injectable()
 export class LoggerService {
   private readonly logger: Logger;
 
