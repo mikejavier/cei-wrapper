@@ -22,7 +22,7 @@ describe("CeiWrapper", () => {
 
       getConsolidatedValuesMock = jest.fn().mockResolvedValue(new ResultSuccess(resultMock));
 
-      const ceiWrapper = new CeiWrapper();
+      const ceiWrapper = new CeiWrapper({ username: "", password: "" });
 
       const expectedResult = new ResultSuccess(resultMock);
 

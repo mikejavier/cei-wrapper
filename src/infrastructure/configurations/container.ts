@@ -2,13 +2,17 @@ import { Container } from "inversify";
 import { CeiService } from "../../services/cei/cei-service";
 import { HttpService } from "../../services/http/http-service";
 import { LoggerService } from "../../services/logger/logger-service";
+import { ISettings, Settings } from "./settings";
 
-const container = new Container();
+export const createContainer = (settings: ISettings): Container => {
+  const container = new Container();
 
-container.bind(Container).toConstantValue(container);
+  container.bind(Container).toConstantValue(container);
 
-container.bind(LoggerService).toSelf();
-container.bind(HttpService).toSelf();
-container.bind(CeiService).toSelf();
+  container.bind(Settings).toConstantValue(new Settings(settings));
+  container.bind(LoggerService).toSelf();
+  container.bind(HttpService).toSelf();
+  container.bind(CeiService).toSelf();
 
-export { container };
+  return container;
+};
