@@ -10,7 +10,8 @@
     "pretest": "npm run build && npm run lint",
     "test": "jest",
     "test:unit": "jest tests/unit",
-    "test:unit:watch": "jest tests/unit --watch --coverage=false"
+    "test:unit:watch": "jest tests/unit --watch --coverage=false",
+    "demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx ts-node scripts/demo.ts"
   },
   "keywords": [
     "cei",
