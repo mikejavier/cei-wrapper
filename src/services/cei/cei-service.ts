@@ -1,7 +1,7 @@
 import { plainToClass } from "class-transformer";
 import { validateSync } from "class-validator";
 import { inject, injectable } from "inversify";
-import { AuthenticationContext } from "../../application/contracts/authentication-context/authentication-context";
+import { AuthenticationContext } from "../authentication/entities/authentication-context";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
