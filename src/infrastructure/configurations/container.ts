@@ -1,4 +1,5 @@
 import { Container } from "inversify";
+import { AntiCaptchaService } from "../../services/anti-captcha/anti-captcha-service";
 import { AuthenticationService } from "../../services/authentication/authentication-service";
 import { CeiService } from "../../services/cei/cei-service";
 import { HttpService } from "../../services/http/http-service";
@@ -15,6 +16,7 @@ export const createContainer = (settings: ISettings): Container => {
   container.bind(HttpService).toSelf();
   container.bind(CeiService).toSelf();
   container.bind(AuthenticationService).toSelf();
+  container.bind(AntiCaptchaService).toSelf();
 
   return container;
 };
