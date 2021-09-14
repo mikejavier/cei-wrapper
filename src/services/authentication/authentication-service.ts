@@ -3,27 +3,27 @@ import puppeteer from "puppeteer";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
-import { Settings } from "../../infrastructure/configurations/settings";
+import { AntiCaptchaService } from "../anti-captcha/anti-captcha-service";
 import { LoggerService } from "../logger/logger-service";
 import { AuthenticationContext } from "./entities/authentication-context";
+import { LoginParameters } from "./entities/login-parameters";
 
 @injectable()
 export class AuthenticationService {
+  private readonly antiCaptchaService: AntiCaptchaService;
   private readonly loggerService: LoggerService;
-  private readonly settings: Settings;
 
-  constructor(@inject(LoggerService) loggerService: LoggerService, @inject(Settings) settings: Settings) {
+  constructor(
+    @inject(AntiCaptchaService) antiCaptchaService: AntiCaptchaService,
+    @inject(LoggerService) loggerService: LoggerService,
+  ) {
+    this.antiCaptchaService = antiCaptchaService;
     this.loggerService = loggerService;
-    this.settings = settings;
   }
 
-  public async login(): Promise<Result<AuthenticationContext>> {
+  public async login(parameters: LoginParameters): Promise<Result<AuthenticationContext>> {
     try {
-      const browser = await puppeteer.launch({
-        headless: false,
-        // executablePath: this._options.loginOptions.browserPath,
-        args: ["--start-maximized"],
-      });
+      const browser = await puppeteer.launch();
 
       const tab = await browser.newPage();
 
@@ -33,7 +33,7 @@ export class AuthenticationService {
 
       await tab.focus("#extension_DocInput");
 
-      await tab.keyboard.type(this.settings.username);
+      await tab.keyboard.type(parameters.username);
 
       await tab.click("#continue");
 
@@ -41,7 +41,43 @@ export class AuthenticationService {
 
       await tab.focus("#password");
 
-      await tab.keyboard.type(this.settings.password);
+      await tab.keyboard.type(parameters.password);
+
+      await tab?.waitForSelector("#divCaptcha", { visible: true, timeout: 0 });
+
+      const websiteKey = (await tab.$eval(
+        "#divCaptcha",
+        (el) => el.attributes["data-sitekey"].value,
+      )) as unknown as string;
+
+      const websiteURL = tab.url();
+
+      const anticaptchaServiceresult = await this.antiCaptchaService.resolve({
+        serviceKey: parameters.anticaptchaServiceKey,
+        websiteKey,
+        websiteURL,
+      });
+
+      if (anticaptchaServiceresult.isError) {
+        this.loggerService.error("Can't resolve captcha", { error: anticaptchaServiceresult });
+
+        return anticaptchaServiceresult;
+      }
+
+      await tab?.waitForSelector("#g-recaptcha-response-toms", { timeout: 0 });
+
+      await tab.$eval(
+        "#g-recaptcha-response-toms",
+        (el, token) => {
+          el.value = token;
+        },
+        anticaptchaServiceresult.data,
+      );
+
+      await tab.$eval("#continue", (el) => {
+        el.removeAttribute("disabled");
+        el.click();
+      });
 
       await tab?.waitForSelector(".saudacao", { visible: true, timeout: 0 });
 
