@@ -1,11 +1,10 @@
 import { plainToClass } from "class-transformer";
 import { validateSync } from "class-validator";
 import { inject, injectable } from "inversify";
-import { AuthenticationContext } from "../authentication/entities/authentication-context";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
-import { Settings } from "../../infrastructure/configurations/settings";
+import { AuthenticationContext } from "../authentication/entities/authentication-context";
 import { HttpRequestResponse } from "../http/http-request-response";
 import { HttpService } from "../http/http-service";
 import { LoggerService } from "../logger/logger-service";
@@ -15,16 +14,13 @@ import { ConsolidatedValues } from "./entities/consolidated-value";
 export class CeiService {
   private readonly loggerService: LoggerService;
   private readonly httpService: HttpService;
-  private readonly settings: Settings;
 
   public constructor(
     @inject(HttpService) httpService: HttpService,
     @inject(LoggerService) loggerService: LoggerService,
-    @inject(Settings) settings: Settings,
   ) {
     this.loggerService = loggerService;
     this.httpService = httpService;
-    this.settings = settings;
   }
 
   public async getConsolidatedValues(
@@ -68,7 +64,7 @@ export class CeiService {
     authenticationContext: AuthenticationContext,
   ): Promise<Result<HttpRequestResponse<T>>> {
     return this.httpService.request<T>({
-      url: this.settings.ceiApiUrl + endpoint,
+      url: "https://investidor.b3.com.br/api" + endpoint,
       method: "GET",
       headers: {
         Authorization: `Bearer ${authenticationContext.token}`,
