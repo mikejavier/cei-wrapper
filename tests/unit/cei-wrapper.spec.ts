@@ -26,7 +26,7 @@ describe("CeiWrapper", () => {
       getConsolidatedValuesMock = jest.fn().mockResolvedValue(new ResultSuccess(resultMock));
       loginMock = jest.fn().mockResolvedValue(new ResultSuccess(new AuthenticationContext("", "")));
 
-      const ceiWrapper = new CeiWrapper({ username: "", password: "" });
+      const ceiWrapper = new CeiWrapper({ cacheId: "", token: "" });
 
       const expectedResult = new ResultSuccess(resultMock);
 

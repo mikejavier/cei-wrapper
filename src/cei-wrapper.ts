@@ -1,29 +1,34 @@
 import "reflect-metadata";
 import { Result } from "./application/contracts/result/result";
 import { createContainer } from "./infrastructure/configurations/container";
-import { ISettings } from "./infrastructure/configurations/settings";
 import { AuthenticationService } from "./services/authentication/authentication-service";
+import { AuthenticationContext } from "./services/authentication/entities/authentication-context";
+import { LoginParameters } from "./services/authentication/entities/login-parameters";
 import { CeiService } from "./services/cei/cei-service";
 import { ConsolidatedValues } from "./services/cei/entities/consolidated-value";
 
 export class CeiWrapper {
-  private readonly authenticationService: AuthenticationService;
+  private readonly authenticationContext: AuthenticationContext;
   private readonly ceiService: CeiService;
 
-  constructor(settings: ISettings) {
-    const container = createContainer(settings);
-
-    this.authenticationService = container.get(AuthenticationService);
-    this.ceiService = container.get(CeiService);
+  constructor(authenticationContext: AuthenticationContext) {
+    this.authenticationContext = authenticationContext;
+    this.ceiService = createContainer().get(CeiService);
   }
 
-  public async getConsolidatedValues(): Promise<Result<ConsolidatedValues>> {
-    const authenticationResult = await this.authenticationService.login();
+  static async authenticateUser(parameters: LoginParameters): Promise<Result<AuthenticationContext>> {
+    const authenticationService = createContainer().get(AuthenticationService);
+
+    const authenticationResult = await authenticationService.login(parameters);
 
     if (authenticationResult.isError) {
       return authenticationResult;
     }
 
-    return await this.ceiService.getConsolidatedValues(authenticationResult.data);
+    return authenticationResult;
+  }
+
+  public async getConsolidatedValues(): Promise<Result<ConsolidatedValues>> {
+    return await this.ceiService.getConsolidatedValues(this.authenticationContext);
   }
 }
