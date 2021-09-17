@@ -1,7 +1,7 @@
 import faker from "faker";
 import { ResultError } from "../../../../src/application/contracts/result/result-error";
 import { ResultSuccess } from "../../../../src/application/contracts/result/result-success";
-import { AntiCaptchaService } from "../../../../src/services/anti-captcha/anti-captcha-service";
+import { CaptchaSolvingService } from "../../../../src/services/captcha-solving/captcha-solving-service";
 import { LoggerService } from "../../../../src/services/logger/logger-service";
 
 let getTaskResultMock = jest.fn();
@@ -20,12 +20,12 @@ jest.mock("anticaptcha", () => ({
 const generateServiceInstance = () => {
   const loggerServiceMock = { info: jest.fn(), error: jest.fn(), warn: jest.fn() } as unknown as LoggerService;
 
-  return new AntiCaptchaService(loggerServiceMock);
+  return new CaptchaSolvingService(loggerServiceMock);
 };
 
-describe("AntiCaptchaService", () => {
+describe("CaptchaSolvingService", () => {
   describe("resolve()", () => {
-    it("Should return result success with token after resolve captcha successfully", async () => {
+    it("Should return result success with token after solve captcha successfully", async () => {
       const token = faker.datatype.uuid();
       const parameters = {
         serviceKey: faker.datatype.uuid(),
@@ -43,7 +43,7 @@ describe("AntiCaptchaService", () => {
       expect(result).toStrictEqual(expectedResult);
     });
 
-    it("Should return result error when fail to resolve captcha", async () => {
+    it("Should return result error when fail to solve captcha", async () => {
       const parameters = {
         serviceKey: faker.datatype.uuid(),
         websiteKey: faker.datatype.uuid(),
@@ -51,7 +51,7 @@ describe("AntiCaptchaService", () => {
       };
       const service = generateServiceInstance();
 
-      const expectedResult = new ResultError("Fail to resolve captcha");
+      const expectedResult = new ResultError("Fail to solve captcha");
 
       getTaskResultMock = jest.fn().mockRejectedValue("");
 

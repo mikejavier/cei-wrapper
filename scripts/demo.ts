@@ -2,7 +2,7 @@ import { CeiWrapper } from "../src/cei-wrapper";
 
 (async () => {
   const authenticateContext = await CeiWrapper.authenticateUser({
-    anticaptchaServiceKey: "KEY",
+    captchaSolvingServiceKey: "KEY",
     username: "USER",
     password: "PASS",
   });

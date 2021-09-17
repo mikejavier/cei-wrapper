@@ -5,21 +5,21 @@ import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
 import { LoggerService } from "../logger/logger-service";
 
-interface AntiCaptchaServiceResolveParameters {
+interface CaptchaSolvingServiceParameters {
   serviceKey: string;
   websiteKey: string;
   websiteURL: string;
 }
 
 @injectable()
-export class AntiCaptchaService {
+export class CaptchaSolvingService {
   private readonly loggerService: LoggerService;
 
   constructor(@inject(LoggerService) loggerService: LoggerService) {
     this.loggerService = loggerService;
   }
 
-  public async resolve(parameters: AntiCaptchaServiceResolveParameters): Promise<Result<string>> {
+  public async resolve(parameters: CaptchaSolvingServiceParameters): Promise<Result<string>> {
     try {
       const antiCaptcha = new AntiCaptcha(parameters.serviceKey);
 
@@ -37,13 +37,13 @@ export class AntiCaptchaService {
 
       const response = await antiCaptcha.getTaskResult<IRecaptchaV2TaskProxylessResult>(taskId);
 
-      this.loggerService.info("Resolved captcha successfully", { parameters: taskId });
+      this.loggerService.info("Solved captcha successfully", { parameters: taskId });
 
       return new ResultSuccess(response.solution.gRecaptchaResponse);
     } catch (error) {
-      this.loggerService.error("Fail to resolve captcha", { error });
+      this.loggerService.error("Fail to solve captcha", { error });
 
-      return new ResultError("Fail to resolve captcha");
+      return new ResultError("Fail to solve captcha");
     }
   }
 }

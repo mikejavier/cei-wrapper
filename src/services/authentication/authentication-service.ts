@@ -3,21 +3,21 @@ import puppeteer from "puppeteer";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
-import { AntiCaptchaService } from "../anti-captcha/anti-captcha-service";
+import { CaptchaSolvingService } from "../captcha-solving/captcha-solving-service";
 import { LoggerService } from "../logger/logger-service";
 import { AuthenticationContext } from "./entities/authentication-context";
 import { LoginParameters } from "./entities/login-parameters";
 
 @injectable()
 export class AuthenticationService {
-  private readonly antiCaptchaService: AntiCaptchaService;
+  private readonly captchaSolvingService: CaptchaSolvingService;
   private readonly loggerService: LoggerService;
 
   constructor(
-    @inject(AntiCaptchaService) antiCaptchaService: AntiCaptchaService,
+    @inject(CaptchaSolvingService) captchaSolvingService: CaptchaSolvingService,
     @inject(LoggerService) loggerService: LoggerService,
   ) {
-    this.antiCaptchaService = antiCaptchaService;
+    this.captchaSolvingService = captchaSolvingService;
     this.loggerService = loggerService;
   }
 
@@ -52,16 +52,16 @@ export class AuthenticationService {
 
       const websiteURL = tab.url();
 
-      const anticaptchaServiceresult = await this.antiCaptchaService.resolve({
-        serviceKey: parameters.anticaptchaServiceKey,
+      const CaptchaSolvingServiceResult = await this.captchaSolvingService.resolve({
+        serviceKey: parameters.captchaSolvingServiceKey,
         websiteKey,
         websiteURL,
       });
 
-      if (anticaptchaServiceresult.isError) {
-        this.loggerService.error("Can't resolve captcha", { error: anticaptchaServiceresult });
+      if (CaptchaSolvingServiceResult.isError) {
+        this.loggerService.error("Can't resolve captcha", { error: CaptchaSolvingServiceResult });
 
-        return anticaptchaServiceresult;
+        return CaptchaSolvingServiceResult;
       }
 
       await tab?.waitForSelector("#g-recaptcha-response-toms", { timeout: 0 });
@@ -71,7 +71,7 @@ export class AuthenticationService {
         (el, token) => {
           el.value = token;
         },
-        anticaptchaServiceresult.data,
+        CaptchaSolvingServiceResult.data,
       );
 
       await tab.$eval("#continue", (el) => {
