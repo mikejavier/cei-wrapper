@@ -91,6 +91,74 @@ ResultSuccess.data:
 }
 ```
 
+### getInvestments(date?, page?)
+
+Returns the investments with details divided into categories
+
+| Argument  | Type | Description                                             |
+| --------- | ------ | ------------------------------------------------------- |
+| `date`    | Date | Position date. By default use the last processing date of the CEI.            |
+| `page`    | Number | Data paging. By default returns the first page.                  |
+
+ResultSuccess.data:
+
+```js
+{
+  "currentPage": 1,
+  "totalPages": 1,
+  "types": [
+    {
+      "category": "RendaVariavel",
+      "name": "Acao",
+      "products": VariableIncomeProduct[],
+      "totalAmount": 111.07
+    },
+    {
+      "category": "TesouroDireto",
+      "name": "TesouroDireto",
+      "products": FixedIncomeProduct[],
+      "totalAmount": 224.1
+    }
+  ]
+}
+```
+
+VariableIncomeProduct example
+
+```js
+{
+  "company": "AMBEV S.A.",
+  "code": "ABEV3",
+  "type": "ON",
+  "amount": 10,
+  "price": 16.13,
+  "exchange": "CLEAR CORRETORA - GRUPO XP",
+  "exchangeId": "02332886001178",
+  "bookkeeper": "BANCO BRADESCO S/A",
+  "available": 10
+},
+```
+
+FixedIncomeProduct example
+
+```js
+{
+  "name": "Tesouro Selic 2023",
+  "index": "SELIC",
+  "expirationSate": "2023-03-01T03:00:00.000Z",
+  "amount": 0.56,
+  "initialValue": 530.23,
+  "currentValue": 615.94,
+  "netValue": 604.39,
+  "initialProfitability": 0.01,
+  "exchange": "XP INVESTIMENTOS CCTVM S/A",
+  "exchangeId": "02332886000104",
+  "available": 0.56
+},
+```
+
+> Warning! The price or the currentValue are from the last processing date of the CEI.
+
 New methods are coming...
 
 ## Autor
