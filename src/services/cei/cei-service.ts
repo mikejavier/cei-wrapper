@@ -9,6 +9,7 @@ import { HttpRequestResponse } from "../http/http-request-response";
 import { HttpService } from "../http/http-service";
 import { LoggerService } from "../logger/logger-service";
 import { ConsolidatedValues } from "./entities/consolidated-value";
+import { Investments } from "./entities/investments";
 
 @injectable()
 export class CeiService {
@@ -57,6 +58,35 @@ export class CeiService {
     }
 
     return new ResultSuccess(consolidatedValues);
+  }
+
+  public async getInvestments(
+    date: Date,
+    page: number,
+    authenticationContext: AuthenticationContext,
+  ): Promise<Result<Investments>> {
+    const response = await this.makeRequest(
+      `/extrato/v1/posicao/${page}?data=${date.toISOString().slice(0, 10)}`,
+      authenticationContext,
+    );
+
+    if (response.isError) {
+      this.loggerService.error("Fail to fetch investments", { response });
+
+      return new ResultError("Fail to fetch investments");
+    }
+
+    const investments = plainToClass(Investments, response.data.body ?? {}, { excludeExtraneousValues: true });
+
+    const errors = validateSync(investments);
+
+    if (errors.length > 0) {
+      this.loggerService.error("Received an invalid data", { response, errors });
+
+      return new ResultError("Received an invalid data");
+    }
+
+    return new ResultSuccess(investments);
   }
 
   private makeRequest<T>(
