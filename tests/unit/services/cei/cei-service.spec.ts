@@ -5,10 +5,12 @@ import { ResultSuccess } from "../../../../src/application/contracts/result/resu
 import { CeiService } from "../../../../src/services/cei/cei-service";
 import { ConsolidatedValues } from "../../../../src/services/cei/entities/consolidated-value";
 import { Investments } from "../../../../src/services/cei/entities/investments";
+import { LatestProcessingDates } from "../../../../src/services/cei/entities/latest-processing-dates";
 import { HttpService } from "../../../../src/services/http/http-service";
 import { LoggerService } from "../../../../src/services/logger/logger-service";
 
 const CONSOLIDATED_VALUES_URL = "https://investidor.b3.com.br/api/investidor/v1/posicao/total-acumulado";
+const LATEST_PROCESSING_DATES_URL = "https://investidor.b3.com.br/api/sistema/v1/carga/ultima-execucao";
 
 const generateInvestmentsUrl = (date: string, page: number) =>
   `https://investidor.b3.com.br/api/extrato/v1/posicao/${page}?data=${date}`;
@@ -152,7 +154,7 @@ describe("CeiService", () => {
       expect(result).toStrictEqual(expectedResult);
     });
 
-    it("Should return success when received consolidated values from service", async () => {
+    it("Should return success when received investiments from service", async () => {
       const date = faker.date.recent();
       const page = faker.datatype.number();
       const authentication = {
@@ -228,6 +230,80 @@ describe("CeiService", () => {
       );
 
       const result = await serviceInstance.getInvestments(date, page, authentication);
+
+      expect(mockedRequest).toHaveBeenNthCalledWith(1, expectedRequestParameters);
+      expect(result).toStrictEqual(expectedResult);
+    });
+  });
+
+  describe("getLatestProcessingDates()", () => {
+    it("Should return error when fail to fetch the latest processing dates", async () => {
+      const authentication = {
+        cacheId: faker.datatype.uuid(),
+        token: faker.datatype.uuid(),
+      };
+      const mockedRequest = jest.fn().mockResolvedValue(new ResultError(faker.lorem.words()));
+      const serviceInstance = generateServiceInstance(mockedRequest);
+
+      const expectedRequestParameters = generateExpectedRequestParameters(
+        authentication.cacheId,
+        authentication.token,
+        LATEST_PROCESSING_DATES_URL,
+      );
+      const expectedResult = new ResultError("Fail to fetch the latest processing dates from CEI");
+
+      const result = await serviceInstance.getLatestProcessingDates(authentication);
+
+      expect(mockedRequest).toHaveBeenNthCalledWith(1, expectedRequestParameters);
+      expect(result).toStrictEqual(expectedResult);
+    });
+
+    it("Should return error when received an invalid response", async () => {
+      const authentication = {
+        cacheId: faker.datatype.uuid(),
+        token: faker.datatype.uuid(),
+      };
+      const mockedRequest = jest.fn().mockResolvedValue(new ResultSuccess({ body: undefined }));
+      const serviceInstance = generateServiceInstance(mockedRequest);
+
+      const expectedRequestParameters = generateExpectedRequestParameters(
+        authentication.cacheId,
+        authentication.token,
+        LATEST_PROCESSING_DATES_URL,
+      );
+      const expectedResult = new ResultError("Received an invalid data");
+
+      const result = await serviceInstance.getLatestProcessingDates(authentication);
+
+      expect(mockedRequest).toHaveBeenNthCalledWith(1, expectedRequestParameters);
+      expect(result).toStrictEqual(expectedResult);
+    });
+
+    it("Should return success when received the latest processing dates from service", async () => {
+      const authentication = {
+        cacheId: faker.datatype.uuid(),
+        token: faker.datatype.uuid(),
+      };
+      const mockedResponse = new ResultSuccess({
+        body: {
+          dataDerivativos: faker.date.recent().toString(),
+          dataGeral: faker.date.recent().toString(),
+          dataRendaFixa: faker.date.recent().toString(),
+          dataRendaVariavel: faker.date.recent().toString(),
+          dataTesouroDireto: faker.date.recent().toString(),
+        },
+      });
+      const mockedRequest = jest.fn().mockResolvedValue(mockedResponse);
+      const serviceInstance = generateServiceInstance(mockedRequest);
+
+      const expectedRequestParameters = generateExpectedRequestParameters(
+        authentication.cacheId,
+        authentication.token,
+        LATEST_PROCESSING_DATES_URL,
+      );
+      const expectedResult = new ResultSuccess(plainToClass(LatestProcessingDates, mockedResponse.data.body));
+
+      const result = await serviceInstance.getLatestProcessingDates(authentication);
 
       expect(mockedRequest).toHaveBeenNthCalledWith(1, expectedRequestParameters);
       expect(result).toStrictEqual(expectedResult);

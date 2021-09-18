@@ -10,6 +10,7 @@ import { HttpService } from "../http/http-service";
 import { LoggerService } from "../logger/logger-service";
 import { ConsolidatedValues } from "./entities/consolidated-value";
 import { Investments } from "./entities/investments";
+import { LatestProcessingDates } from "./entities/latest-processing-dates";
 
 @injectable()
 export class CeiService {
@@ -87,6 +88,30 @@ export class CeiService {
     }
 
     return new ResultSuccess(investments);
+  }
+
+  public async getLatestProcessingDates(
+    authenticationContext: AuthenticationContext,
+  ): Promise<Result<LatestProcessingDates>> {
+    const response = await this.makeRequest("/sistema/v1/carga/ultima-execucao", authenticationContext);
+
+    if (response.isError) {
+      this.loggerService.error("Fail to fetch the latest processing dates from CEI", { response });
+
+      return new ResultError("Fail to fetch the latest processing dates from CEI");
+    }
+
+    const latestProcessingDates = plainToClass(LatestProcessingDates, response.data.body ?? {});
+
+    const errors = validateSync(latestProcessingDates);
+
+    if (errors.length > 0) {
+      this.loggerService.error("Received an invalid data", { response });
+
+      return new ResultError("Received an invalid data");
+    }
+
+    return new ResultSuccess(latestProcessingDates);
   }
 
   private makeRequest<T>(
