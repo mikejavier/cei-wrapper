@@ -9,6 +9,7 @@
     "baseUrl": "./src",
     "removeComments": true,
     "strict": true,
+    "declaration": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -22,5 +23,5 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "reports", "dist"]
 }

@@ -2,8 +2,10 @@
   "name": "cei-wrapper",
   "version": "1.0.0",
   "description": "Module to fetch information from CEI (Canal Eletronico do Investidor)",
-  "main": "dist/src/index.js",
+  "main": "dist/src/cei-wrapper.js",
+  "types": "dist/src/cei-wrapper.d.ts",
   "scripts": {
+    "prepare" : "npm run build",
     "build": "tsc -p .",
     "lint": "eslint . --ext ts",
     "lint:fix": "npm run lint -- --fix",
@@ -11,7 +13,8 @@
     "test": "jest",
     "test:unit": "jest tests/unit",
     "test:unit:watch": "jest tests/unit --watch --coverage=false",
-    "demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx ts-node scripts/demo.ts"
+    "demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx ts-node scripts/demo.ts",
+    "demo2": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx ts-node scripts/demo2.ts"
   },
   "keywords": [
     "cei",
@@ -19,9 +22,14 @@
     "acoes",
     "investir",
     "b3",
-    "canal do investidor eletronico",
+    "canal eletronico do investidor",
     "cei b3"
   ],
+  "bugs": {
+    "url": "https://github.com/mikejavier/cei-wrapper/issues"
+  },
+  "homepage": "https://github.com/mikejavier/cei-wrapper#readme",
+  "files": ["dist/src/**/*"],
   "author": "Michael Santillán",
   "license": "MIT",
   "devDependencies": {
