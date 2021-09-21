@@ -2,8 +2,10 @@
   "name": "cei-wrapper",
   "version": "1.0.0",
   "description": "Module to fetch information from CEI (Canal Eletronico do Investidor)",
-  "main": "dist/src/index.js",
+  "main": "dist/src/cei-wrapper.js",
+  "types": "dist/src/cei-wrapper.d.ts",
   "scripts": {
+    "prepare" : "npm run build",
     "build": "tsc -p .",
     "lint": "eslint . --ext ts",
     "lint:fix": "npm run lint -- --fix",
@@ -11,7 +13,8 @@
     "test": "jest",
     "test:unit": "jest tests/unit",
     "test:unit:watch": "jest tests/unit --watch --coverage=false",
-    "demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx ts-node scripts/demo.ts"
+    "demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx ts-node scripts/demo.ts",
+    "demo2": "NODE_TLS_REJECT_UNAUTHORIZED=0 npx ts-node scripts/demo2.ts"
   },
   "keywords": [
     "cei",
@@ -19,18 +22,23 @@
     "acoes",
     "investir",
     "b3",
-    "canal do investidor eletronico",
+    "canal eletronico do investidor",
     "cei b3"
   ],
+  "bugs": {
+    "url": "https://github.com/mikejavier/cei-wrapper/issues"
+  },
+  "homepage": "https://github.com/mikejavier/cei-wrapper#readme",
+  "files": ["dist/src/**/*"],
   "author": "Michael Santillán",
   "license": "MIT",
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/faker": "^5.5.8",
     "@types/jest": "^27.0.1",
-    "@types/node": "^16.9.1",
-    "@typescript-eslint/eslint-plugin": "^4.31.0",
-    "@typescript-eslint/parser": "^4.31.0",
+    "@types/node": "^16.9.2",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
     "axios": "^0.21.4",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
@@ -38,13 +46,14 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-spellcheck": "0.0.19",
     "faker": "^5.5.3",
-    "jest": "^27.1.1",
-    "prettier": "^2.4.0",
+    "jest": "^27.2.0",
+    "prettier": "^2.4.1",
     "ts-jest": "^27.0.5",
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "@vizir/simple-json-logger": "^3.0.0",
+    "@vizir/simple-json-logger": "^4.0.0",
+    "anticaptcha": "^2.0.6",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",
     "inversify": "^5.1.1",

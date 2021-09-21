@@ -1,20 +1,14 @@
 import { injectable } from "inversify";
 
 export interface ISettings {
-  username: string;
-  password: string;
-  ceiApiUrl?: string;
+  debug?: boolean;
 }
 
 @injectable()
 export class Settings {
-  public readonly username: string;
-  public readonly password: string;
-  public readonly ceiApiUrl: string;
+  public readonly debug: boolean;
 
   constructor(settings: ISettings) {
-    this.username = settings.username;
-    this.password = settings.password;
-    this.ceiApiUrl = settings.ceiApiUrl ?? "https://investidor.b3.com.br/api";
+    this.debug = settings.debug ?? false;
   }
 }

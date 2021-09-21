@@ -1,30 +1,28 @@
 import { plainToClass } from "class-transformer";
 import { validateSync } from "class-validator";
 import { inject, injectable } from "inversify";
-import { AuthenticationContext } from "../authentication/entities/authentication-context";
 import { Result } from "../../application/contracts/result/result";
 import { ResultError } from "../../application/contracts/result/result-error";
 import { ResultSuccess } from "../../application/contracts/result/result-success";
-import { Settings } from "../../infrastructure/configurations/settings";
+import { AuthenticationContext } from "../authentication/entities/authentication-context";
 import { HttpRequestResponse } from "../http/http-request-response";
 import { HttpService } from "../http/http-service";
 import { LoggerService } from "../logger/logger-service";
 import { ConsolidatedValues } from "./entities/consolidated-value";
+import { Investments } from "./entities/investments";
+import { LatestProcessingDates } from "./entities/latest-processing-dates";
 
 @injectable()
 export class CeiService {
   private readonly loggerService: LoggerService;
   private readonly httpService: HttpService;
-  private readonly settings: Settings;
 
   public constructor(
     @inject(HttpService) httpService: HttpService,
     @inject(LoggerService) loggerService: LoggerService,
-    @inject(Settings) settings: Settings,
   ) {
     this.loggerService = loggerService;
     this.httpService = httpService;
-    this.settings = settings;
   }
 
   public async getConsolidatedValues(
@@ -63,12 +61,65 @@ export class CeiService {
     return new ResultSuccess(consolidatedValues);
   }
 
+  public async getInvestments(
+    date: Date,
+    page: number,
+    authenticationContext: AuthenticationContext,
+  ): Promise<Result<Investments>> {
+    const response = await this.makeRequest(
+      `/extrato/v1/posicao/${page}?data=${date.toISOString().slice(0, 10)}`,
+      authenticationContext,
+    );
+
+    if (response.isError) {
+      this.loggerService.error("Fail to fetch investments", { response });
+
+      return new ResultError("Fail to fetch investments");
+    }
+
+    const investments = plainToClass(Investments, response.data.body ?? {}, { excludeExtraneousValues: true });
+
+    const errors = validateSync(investments);
+
+    if (errors.length > 0) {
+      this.loggerService.error("Received an invalid data", { response, errors });
+
+      return new ResultError("Received an invalid data");
+    }
+
+    return new ResultSuccess(investments);
+  }
+
+  public async getLatestProcessingDates(
+    authenticationContext: AuthenticationContext,
+  ): Promise<Result<LatestProcessingDates>> {
+    const response = await this.makeRequest("/sistema/v1/carga/ultima-execucao", authenticationContext);
+
+    if (response.isError) {
+      this.loggerService.error("Fail to fetch the latest processing dates from CEI", { response });
+
+      return new ResultError("Fail to fetch the latest processing dates from CEI");
+    }
+
+    const latestProcessingDates = plainToClass(LatestProcessingDates, response.data.body ?? {});
+
+    const errors = validateSync(latestProcessingDates);
+
+    if (errors.length > 0) {
+      this.loggerService.error("Received an invalid data", { response });
+
+      return new ResultError("Received an invalid data");
+    }
+
+    return new ResultSuccess(latestProcessingDates);
+  }
+
   private makeRequest<T>(
     endpoint: string,
     authenticationContext: AuthenticationContext,
   ): Promise<Result<HttpRequestResponse<T>>> {
     return this.httpService.request<T>({
-      url: this.settings.ceiApiUrl + endpoint,
+      url: "https://investidor.b3.com.br/api" + endpoint,
       method: "GET",
       headers: {
         Authorization: `Bearer ${authenticationContext.token}`,
