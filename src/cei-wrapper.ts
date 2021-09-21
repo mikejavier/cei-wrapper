@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { Result } from "./application/contracts/result/result";
 import { createContainer } from "./infrastructure/configurations/container";
+import { ISettings } from "./infrastructure/configurations/settings";
 import { AuthenticationService } from "./services/authentication/authentication-service";
 import { AuthenticationContext } from "./services/authentication/entities/authentication-context";
 import { LoginParameters } from "./services/authentication/entities/login-parameters";
@@ -12,13 +13,16 @@ export class CeiWrapper {
   private readonly authenticationContext: AuthenticationContext;
   private readonly ceiService: CeiService;
 
-  constructor(authenticationContext: AuthenticationContext) {
+  constructor(authenticationContext: AuthenticationContext, settings?: ISettings) {
     this.authenticationContext = authenticationContext;
-    this.ceiService = createContainer().get(CeiService);
+    this.ceiService = createContainer(settings).get(CeiService);
   }
 
-  static async authenticateUser(parameters: LoginParameters): Promise<Result<AuthenticationContext>> {
-    const authenticationService = createContainer().get(AuthenticationService);
+  static async authenticateUser(
+    parameters: LoginParameters,
+    settings?: ISettings,
+  ): Promise<Result<AuthenticationContext>> {
+    const authenticationService = createContainer(settings).get(AuthenticationService);
 
     const authenticationResult = await authenticationService.login(parameters);
 

@@ -95,10 +95,10 @@ ResultSuccess.data:
 
 Returns the investments with details divided into categories
 
-| Argument  | Type | Description                                             |
-| --------- | ------ | ------------------------------------------------------- |
-| `date`    | Date | Position date. By default use the last processing date of the CEI.            |
-| `page`    | Number | Data paging. By default returns the first page.                  |
+| Argument | Type   | Description                                                        |
+| -------- | ------ | ------------------------------------------------------------------ |
+| `date`   | Date   | Position date. By default use the last processing date of the CEI. |
+| `page`   | Number | Data paging. By default returns the first page.                    |
 
 ResultSuccess.data:
 
@@ -160,6 +160,36 @@ FixedIncomeProduct example
 > Warning! The price or the currentValue are from the last processing date of the CEI.
 
 New methods are coming...
+
+## Debugging
+
+If you find any strange behavior you can turn on the logs to find out what might be going on.
+To turn on the logs just pass as second parameter an options object with a property debug = true. e.g
+
+```js
+const ceiWrapper = new CeiWrapper(authenticateContext, { debug: true });
+
+// or
+
+const authenticateContext = await CeiWrapper.authenticateUser(
+  {
+    // authentication params
+  },
+  { debug: true },
+);
+```
+
+this will start logging everything the lib is doing, following example
+
+```json
+{"context":{},"level":"info","datetime":"2021-09-21T15:23:53.871Z","message":"LoggerService.info(): Executing http request","extra":{"options":{"url":"https://investidor.b3.com.br/api/sistema/v1/carga/ultima-execucao","method":"GET","headers":{"Authorization":"*sensitive*"}
+
+{"context":{},"level":"error","datetime":"2021-09-21T15:50:45.536Z","message":"LoggerService.error(): The http request result in a status code 4xx or 5xx","extra":{"options":{"url":"https://investidor.b3.com.br/api/sistema/v1/carga/ultima-execucao","method":"GET","headers":{"Authorization":"*sensitive*"},"params":{"cache-guid":"8de6e874-d5e8-45dc-8328-f31f2d29bfed"}},"error":"Request failed with status code 429"}}
+
+{"context":{},"level":"error","datetime":"2021-09-21T15:50:45.542Z","message":"LoggerService.error(): Fail to fetch the latest processing dates from CEI","extra":{"response":{"isError":true,"status":0,"errorMessage":"Failed to fetch request"}}}
+```
+
+making it easier to understand what is going on
 
 ## Autor
 

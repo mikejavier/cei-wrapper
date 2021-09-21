@@ -1,12 +1,15 @@
-import { Logger } from "@vizir/simple-json-logger";
-import { injectable } from "inversify";
+import { Logger, LogLevelEnum } from "@vizir/simple-json-logger";
+import { inject, injectable } from "inversify";
+import { Settings } from "../../infrastructure/configurations/settings";
 
 @injectable()
 export class LoggerService {
   private readonly logger: Logger;
+  private readonly settings: Settings;
 
-  constructor() {
-    this.logger = new Logger();
+  constructor(@inject(Settings) settings: Settings) {
+    this.settings = settings;
+    this.logger = new Logger(undefined, { logLevel: this.settings.debug ? LogLevelEnum.INFO : LogLevelEnum.WARN });
   }
 
   public debug(message: string, extra?: object): void {

@@ -1,4 +1,6 @@
+import { Logger, LogLevelEnum } from "@vizir/simple-json-logger";
 import faker from "faker";
+import { ISettings, Settings } from "../../../../src/infrastructure/configurations/settings";
 import { LoggerService } from "../../../../src/services/logger/logger-service";
 
 const debugMock = jest.fn();
@@ -6,21 +8,44 @@ const infoMock = jest.fn();
 const warnMock = jest.fn();
 const errorMock = jest.fn();
 
-jest.mock("@vizir/simple-json-logger", () => ({
-  Logger: function () {
-    return {
+jest.mock("@vizir/simple-json-logger", () => {
+  const originalModule = jest.requireActual("@vizir/simple-json-logger");
+
+  return {
+    ...originalModule,
+    Logger: jest.fn().mockImplementation(() => ({
       debug: debugMock,
       info: infoMock,
       warn: warnMock,
       error: errorMock,
-    };
-  },
-}));
+    })),
+  };
+});
+
+const generateServiceInstance = (settingsParameters: ISettings = {}) => {
+  const settings = new Settings(settingsParameters);
+
+  return new LoggerService(settings);
+};
 
 describe("LoggerService", () => {
+  describe("Creating", () => {
+    it("Should set level as info when debug is true", () => {
+      generateServiceInstance({ debug: true });
+
+      expect(Logger).toHaveBeenNthCalledWith(1, undefined, { logLevel: LogLevelEnum.INFO });
+    });
+
+    it("Should set level as warn when debug is false", () => {
+      generateServiceInstance({ debug: false });
+
+      expect(Logger).toHaveBeenNthCalledWith(1, undefined, { logLevel: LogLevelEnum.WARN });
+    });
+  });
+
   describe("debug()", () => {
     it("Should call debug method of external lib with only message parameter", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
 
       loggerService.debug(message);
@@ -29,7 +54,7 @@ describe("LoggerService", () => {
     });
 
     it("Should call debug method of external lib with message and extra parameters", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
       const extra = {};
 
@@ -41,7 +66,7 @@ describe("LoggerService", () => {
 
   describe("info()", () => {
     it("Should call info method of external lib with only message parameter", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
 
       loggerService.info(message);
@@ -50,7 +75,7 @@ describe("LoggerService", () => {
     });
 
     it("Should call info method of external lib with message and extra parameters", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
       const extra = {};
 
@@ -62,7 +87,7 @@ describe("LoggerService", () => {
 
   describe("warn()", () => {
     it("Should call warn method of external lib with only message parameter", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
 
       loggerService.warn(message);
@@ -71,7 +96,7 @@ describe("LoggerService", () => {
     });
 
     it("Should call warn method of external lib with message and extra parameters", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
       const extra = {};
 
@@ -83,7 +108,7 @@ describe("LoggerService", () => {
 
   describe("error()", () => {
     it("Should call error method of external lib with only message parameter", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
 
       loggerService.error(message);
@@ -92,7 +117,7 @@ describe("LoggerService", () => {
     });
 
     it("Should call error method of external lib with message and extra parameters", () => {
-      const loggerService = new LoggerService();
+      const loggerService = generateServiceInstance();
       const message = faker.lorem.words();
       const extra = {};
 
